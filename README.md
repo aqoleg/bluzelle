@@ -7,7 +7,7 @@
 * Build and API [docs](src/com/bluzelle)
 * Java [docs](https://aqoleg.github.io/blzjava)
 * [Examples](examples)
-* Android [example](https://aqoleg.github.io/blzandroid)
+* Android [example](https://github.com/aqoleg/blzandroid)
 * [Tests](test/com/bluzelle)
 
 
