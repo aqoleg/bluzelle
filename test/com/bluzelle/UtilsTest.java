@@ -1,7 +1,7 @@
 package com.bluzelle;
 
-import com.bluzelle.keys.HdKeyPair;
-import com.bluzelle.keys.Mnemonic;
+import com.bluzelle.crypto.HdKeyPair;
+import com.bluzelle.crypto.Mnemonic;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -10,6 +10,28 @@ import static com.bluzelle.Utils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UtilsTest {
+    private static final String endpoint = "http://client.sentry.testnet.public.bluzelle.com:1317";
+
+    @Test
+    void getTest() {
+        assertThrows(ConnectionException.class, () -> get(endpoint, null));
+        assertThrows(ConnectionException.class, () -> get("a.com", "/read", "key"));
+
+        String error = "";
+        try {
+            get(endpoint, "/read/mm", "mm");
+        } catch (KeyNotFoundException e) {
+            error = e.getMessage();
+        }
+        assertEquals("key \"mm\" not found", error);
+        assertNotNull(get(endpoint, "/node_info"));
+    }
+
+    @Test
+    void postTest() {
+        assertThrows(NullPointerException.class, () -> post(endpoint, null));
+        assertThrows(ConnectionException.class, () -> post(endpoint, "S"));
+    }
 
     @Test
     void getAddressTest() {
@@ -51,11 +73,6 @@ class UtilsTest {
         assertEquals(32, string.length());
         assertNotEquals(string, randomString());
         assertNotEquals(randomString(), randomString());
-        System.out.println("random string");
-        System.out.println(string);
-        System.out.println();
-        System.out.println("another random string");
-        System.out.println(randomString());
     }
 
     @Test

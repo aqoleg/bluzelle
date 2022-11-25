@@ -1,5 +1,8 @@
 // some utils
 // usage:
+//    String response = Utils.get(endpointString, pathString, keyString);
+//    String response = Utils.get(endpointString, pathString);
+//    String response = Utils.post(endpointString, dataJsonObject);
 //    String bluzelleAddress = Utils.getAddress(hdKeyPair);
 //    byte[] sha256hash = Utils.sha256hash(messageBytes);
 //    String memo = Utils.randomString();
@@ -8,10 +11,14 @@
 //    String encoded = Utils.hexToString(hexString);
 package com.bluzelle;
 
-import com.bluzelle.keys.Bech32;
-import com.bluzelle.keys.HdKeyPair;
-import com.bluzelle.keys.Ripemd160;
+import com.bluzelle.crypto.Bech32;
+import com.bluzelle.crypto.HdKeyPair;
+import com.bluzelle.crypto.Ripemd160;
 
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -19,6 +26,99 @@ import java.security.NoSuchAlgorithmException;
 public class Utils {
     private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private static final String hex = "0123456789ABCDEF";
+
+    /**
+     * perform get request
+     *
+     * @param endpoint url endpoint
+     * @param path     url path
+     * @param key      String for the custom exception
+     * @return response String
+     * @throws KeyNotFoundException if key does not exist
+     * @throws ConnectionException  if can not connect
+     */
+    public static String get(String endpoint, String path, String key) {
+        try {
+            return get(endpoint + path);
+        } catch (FileNotFoundException e) {
+            throw new KeyNotFoundException(key);
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+    }
+
+    /**
+     * perform get request
+     *
+     * @param endpoint url endpoint
+     * @param path     url path
+     * @return response String
+     * @throws ConnectionException if can not connect
+     */
+    public static String get(String endpoint, String path) {
+        try {
+            return get(endpoint + path);
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+    }
+
+    private static String get(String path) throws IOException {
+        URL url = new URL(path);
+        URLConnection connection = url.openConnection();
+        connection.setConnectTimeout(5000);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String input;
+        do {
+            input = reader.readLine();
+            if (input == null) {
+                reader.close();
+                return builder.toString();
+            }
+            builder.append(input);
+        } while (true);
+    }
+
+    /**
+     * perform post request
+     *
+     * @param endpoint url endpoint
+     * @param data     Object.toString() to post
+     * @return response String
+     * @throws NullPointerException if data == null
+     * @throws ConnectionException  if can not connect
+     */
+    public static String post(String endpoint, Object data) {
+        try {
+            URL url = new URL(endpoint + "/txs");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(5000);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-type", "application/json");
+
+            OutputStream stream = connection.getOutputStream();
+            stream.write(data.toString().getBytes("utf-8"));
+            stream.flush();
+            stream.close();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder builder = new StringBuilder();
+            String input;
+            do {
+                input = reader.readLine();
+                if (input == null) {
+                    reader.close();
+                    return builder.toString();
+                }
+                builder.append(input);
+            } while (true);
+        } catch (IOException e) {
+            throw new ConnectionException(e);
+        }
+    }
 
     /**
      * @param keyPair HdKeyPair keypair from which will be created address

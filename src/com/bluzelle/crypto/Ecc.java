@@ -6,7 +6,7 @@
 //    BigInteger y = point.y;
 //    byte[] signature = Ecc.ecc.sign(messageBytes, privateKeyBigInteger);
 //    bool verified = Ecc.ecc.verify(messageBytes, publicKeyPoint, signatureBytes);
-package com.bluzelle.keys;
+package com.bluzelle.crypto;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;

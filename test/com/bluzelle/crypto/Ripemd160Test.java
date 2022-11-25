@@ -1,4 +1,4 @@
-package com.bluzelle.keys;
+package com.bluzelle.crypto;
 
 import org.junit.jupiter.api.Test;
 

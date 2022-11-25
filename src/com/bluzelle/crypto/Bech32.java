@@ -1,7 +1,7 @@
 // bech32 encoder, see bip173
 // usage:
 //    String encoded = Bech32.encode(prefixString, dataBytes);
-package com.bluzelle.keys;
+package com.bluzelle.crypto;
 
 import java.io.ByteArrayOutputStream;
 
